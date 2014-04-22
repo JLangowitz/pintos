@@ -370,12 +370,14 @@ other_thread_get_priority (struct thread *target)
   return target->priority;
 }
 
+// Donates priority of current thread to target thread
 void
 thread_donate_priority (struct thread *target) 
 {
   return;
 }
 
+// Restores priority of current thread
 void
 thread_restore_priority () {
   return;

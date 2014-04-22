@@ -103,7 +103,7 @@ struct thread
     unsigned magic;                     /* Detects stack overflow. */
 
     // Stuff we are adding
-    struct list *locks; /*List of owned locks for priority donation*/
+    struct list locks; /*List of owned locks for priority donation*/
   };
 
 /* If false (default), use round-robin scheduler.
