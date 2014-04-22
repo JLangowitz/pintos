@@ -558,10 +558,7 @@ next_thread_to_run (void)
 //lower priority than b
 bool thread_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux)
 {
-  if(list_entry(a,struct thread, elem)->priority < list_entry(b,struct thread, elem)->priority)
-    return 1;
-  else
-    return 0;
+  return (other_thread_get_priority(list_entry(a,struct thread, elem)) < other_thread_get_priority(list_entry(b,struct thread, elem)));
 }
 
 /* Completes a thread switch by activating the new thread's page
