@@ -358,12 +358,12 @@ thread_get_priority (void)
 
 void
 thread_donate_priority (struct thread *target) {
-  return
+  return;
 }
 
 void
 thread_restore_priority () {
-  return
+  return;
 }
 
 /* Sets the current thread's priority to NEW_PRIORITY. */
