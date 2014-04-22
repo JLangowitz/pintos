@@ -200,7 +200,8 @@ thread_create (const char *name, int priority,
 
   /* Add to run queue. */
   thread_unblock (t);
-
+  thread_yield();
+  
   return tid;
 }
 
@@ -354,6 +355,7 @@ void
 other_thread_set_priority (struct thread *target, int new_priority)
 {
   target->priority = new_priority;
+  thread_yield();
 }
 
 /* Returns the current thread's priority. */
@@ -367,7 +369,27 @@ thread_get_priority (void)
 int
 other_thread_get_priority (struct thread *target)
 {
-  return target->priority;
+  int max = target->priority;
+  int temp;
+  struct list_elem *lock_elem;
+  struct list_elem *thread_elem;
+  struct lock *lock;
+  struct thread *thread;
+  for (lock_elem = list_begin (&target->locks); lock_elem != list_end (&target->locks); lock_elem = list_next (lock_elem))
+  {
+    lock = list_entry (lock_elem, struct lock, elem);
+    // for (thread_elem = list_begin (&lock->semaphore.waiters); thread_elem != list_end (&lock->semaphore.waiters); thread_elem = list_next (thread_elem))
+    // {
+    //   thread = list_entry (thread_elem, struct thread, elem);
+    //   temp = other_thread_get_priority(thread);
+    temp = list_max(&lock->semaphore.waiters, thread_priority_less, NULL);
+    if (temp > max)
+    {
+      max = temp;
+    }
+    // }
+  }
+  return max;
 }
 
 // Donates priority of current thread to target thread
