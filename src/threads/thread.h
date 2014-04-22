@@ -101,6 +101,9 @@ struct thread
 
     /* Owned by thread.c. */
     unsigned magic;                     /* Detects stack overflow. */
+
+    // Stuff we are adding
+    struct list *locks; /*List of owned locks for priority donation*/
   };
 
 /* If false (default), use round-robin scheduler.
@@ -132,6 +135,8 @@ void thread_yield (void);
 typedef void thread_action_func (struct thread *t, void *aux);
 void thread_foreach (thread_action_func *, void *);
 
+int other_thread_get_priority (struct thread *);
+void other_thread_set_priority (struct thread *, int);
 int thread_get_priority (void);
 void thread_set_priority (int);
 void thread_donate_priority (struct thread *);

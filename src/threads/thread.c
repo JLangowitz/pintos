@@ -346,18 +346,33 @@ thread_foreach (thread_action_func *func, void *aux)
 void
 thread_set_priority (int new_priority)
 {
-  thread_current ()->priority = new_priority;
+  other_thread_set_priority (thread_current(), new_priority);
+}
+
+// Sets the target thread's priority to new_priority
+void
+other_thread_set_priority (struct thread *target, int new_priority)
+{
+  target->priority = new_priority;
 }
 
 /* Returns the current thread's priority. */
 int
 thread_get_priority (void)
 {
-  return thread_current ()->priority;
+  return other_thread_get_priority(thread_current());
+}
+
+// Returns the target thread's priority
+int
+other_thread_get_priority (struct thread *target)
+{
+  return target->priority;
 }
 
 void
-thread_donate_priority (struct thread *target) {
+thread_donate_priority (struct thread *target) 
+{
   return;
 }
 
@@ -499,6 +514,7 @@ init_thread (struct thread *t, const char *name, int priority)
   t->priority = priority;
   t->old_priority = priority; // added
   t->magic = THREAD_MAGIC;
+  list_init (&(t->locks));
 
   old_level = intr_disable ();
   list_push_back (&all_list, &t->allelem);
