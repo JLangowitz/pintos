@@ -520,7 +520,21 @@ next_thread_to_run (void)
   if (list_empty (&ready_list))
     return idle_thread;
   else
-    return list_entry (list_pop_front (&ready_list), struct thread, elem);
+    struct list_elem *next_thread_elem = list_max(ready_list,thread_priority_less,NULL);
+    list_remove(next_thread_elem);
+
+    return list_entry(next_thread_elem,struct thread, elem);
+    //return list_entry (list_pop_front (&ready_list), struct thread, elem);
+}
+
+//Compares two list elements that contain threads and returns whether a has
+//lower priority than b
+bool thread_priority_less(struct list_elem *a, struct list_elem *b, void *aux)
+{
+  if(list_entry(a,struct thread, elem)->priority < list_entry(b,struct thread, elem)->priority)
+    return 1;
+  else
+    return 0;
 }
 
 /* Completes a thread switch by activating the new thread's page
