@@ -201,7 +201,7 @@ thread_create (const char *name, int priority,
   /* Add to run queue. */
   thread_unblock (t);
   thread_yield();
-  
+
   return tid;
 }
 
@@ -378,18 +378,26 @@ other_thread_get_priority (struct thread *target)
   for (lock_elem = list_begin (&target->locks); lock_elem != list_end (&target->locks); lock_elem = list_next (lock_elem))
   {
     lock = list_entry (lock_elem, struct lock, elem);
-    // for (thread_elem = list_begin (&lock->semaphore.waiters); thread_elem != list_end (&lock->semaphore.waiters); thread_elem = list_next (thread_elem))
-    // {
-    //   thread = list_entry (thread_elem, struct thread, elem);
-    //   temp = other_thread_get_priority(thread);
-    temp = list_max(&lock->semaphore.waiters, thread_priority_less, NULL);
-    if (temp > max)
+    for (thread_elem = list_begin (&lock->semaphore.waiters); thread_elem != list_end (&lock->semaphore.waiters); thread_elem = list_next (thread_elem))
     {
-      max = temp;
+      thread = list_entry (thread_elem, struct thread, elem);
+    // thread = list_entry(list_max(&lock->semaphore.waiters, thread_priority_less, NULL), struct thread, elem);
+      temp = other_thread_get_priority(thread);
+      if (temp > max)
+      {
+        max = temp;
+      }
     }
-    // }
   }
   return max;
+}
+
+bool
+lock_priority_less (const struct list_elem *a, const struct list_elem *b, void *aux){
+  struct lock *lock_a = list_entry(a, struct lock, elem);
+  struct lock *lock_b = list_entry(b, struct lock, elem);
+  return thread_priority_less(list_max(&lock_a->semaphore.waiters, thread_priority_less, NULL), 
+    list_max(&lock_b->semaphore.waiters, thread_priority_less, NULL), aux);
 }
 
 // Donates priority of current thread to target thread
@@ -580,7 +588,8 @@ next_thread_to_run (void)
 //lower priority than b
 bool thread_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux)
 {
-  return (other_thread_get_priority(list_entry(a,struct thread, elem)) < other_thread_get_priority(list_entry(b,struct thread, elem)));
+  return (other_thread_get_priority(list_entry(a,struct thread, elem)) 
+    < other_thread_get_priority(list_entry(b,struct thread, elem)));
 }
 
 /* Completes a thread switch by activating the new thread's page
