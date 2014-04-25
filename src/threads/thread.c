@@ -381,7 +381,6 @@ other_thread_get_priority (struct thread *target)
     for (thread_elem = list_begin (&lock->semaphore.waiters); thread_elem != list_end (&lock->semaphore.waiters); thread_elem = list_next (thread_elem))
     {
       thread = list_entry (thread_elem, struct thread, elem);
-    // thread = list_entry(list_max(&lock->semaphore.waiters, thread_priority_less, NULL), struct thread, elem);
       temp = other_thread_get_priority(thread);
       if (temp > max)
       {
