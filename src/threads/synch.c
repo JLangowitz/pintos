@@ -335,7 +335,7 @@ cond_signal (struct condition *cond, struct lock *lock UNUSED)
     /*sema_up (&list_entry (list_pop_front (&cond->waiters),
                           struct semaphore_elem, elem)->semaphore);
     */
-    struct list_elem *next_sema_elem = list_max(&cond->waiters,sema_priority_less,NULL);
+    struct list_elem *next_sema_elem = list_max(&cond->waiters,sema_waiters_priority_less,NULL);
     list_remove(next_sema_elem);
     sema_up(&list_entry(next_sema_elem,struct semaphore_elem, elem)->semaphore);
   }
