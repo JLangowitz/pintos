@@ -585,7 +585,8 @@ next_thread_to_run (void)
 
 //Compares two list elements that contain threads and returns whether a has
 //lower priority than b
-bool thread_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux)
+bool 
+thread_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux)
 {
   return (other_thread_get_priority(list_entry(a,struct thread, elem)) 
     < other_thread_get_priority(list_entry(b,struct thread, elem)));
