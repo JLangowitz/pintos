@@ -124,6 +124,7 @@ sema_up (struct semaphore *sema)
 
   sema->value++;
   intr_set_level (old_level);
+  thread_yield();
 }
 
 static void sema_test_helper (void *sema_);
@@ -356,4 +357,15 @@ cond_broadcast (struct condition *cond, struct lock *lock)
 
   while (!list_empty (&cond->waiters))
     cond_signal (cond, lock);
+}
+
+bool
+sema_waiters_priority_less (const struct list_elem *a, const struct list_elem *b, void *aux)
+{
+  struct semaphore *sema_a = &list_entry(a, struct semaphore_elem, elem)->semaphore;
+  struct semaphore *sema_b = &list_entry(b, struct semaphore_elem, elem)->semaphore;
+  struct list_elem *thread_a = list_max(&sema_a->waiters,thread_priority_less,NULL);
+  struct list_elem *thread_b = list_max(&sema_b->waiters,thread_priority_less,NULL);
+  return (other_thread_get_priority(list_entry(thread_a,struct thread, elem)) 
+    < other_thread_get_priority(list_entry(thread_b,struct thread, elem)));
 }
