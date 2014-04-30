@@ -71,6 +71,9 @@ static void schedule (void);
 void thread_schedule_tail (struct thread *prev);
 static tid_t allocate_tid (void);
 
+static int32_t load_avg = 0; // We added this
+#define FIXED_POINT_FACTOR 16384
+
 /* Initializes the threading system by transforming the code
    that's currently running into a thread.  This can't work in
    general and it is possible in this case only because loader.S
@@ -369,6 +372,7 @@ thread_get_priority (void)
 int
 other_thread_get_priority (struct thread *target)
 {
+  if (thread_mlfqs) return target->priority;
   int max = target->priority;
   int temp;
   struct list_elem *lock_elem;
@@ -395,66 +399,59 @@ bool
 lock_priority_less (const struct list_elem *a, const struct list_elem *b, void *aux){
   struct lock *lock_a = list_entry(a, struct lock, elem);
   struct lock *lock_b = list_entry(b, struct lock, elem);
-  return thread_priority_less(list_max(&lock_a->semaphore.waiters, thread_priority_less, NULL), 
+  return thread_priority_less(list_max(&lock_a->semaphore.waiters, thread_priority_less, NULL),
     list_max(&lock_b->semaphore.waiters, thread_priority_less, NULL), aux);
-}
-
-// Donates priority of current thread to target thread
-void
-thread_donate_priority (struct thread *target) 
-{
-  return;
-}
-
-// Restores priority of current thread
-void
-thread_restore_priority () {
-  return;
-}
-
-/* Sets the current thread's priority to NEW_PRIORITY. */
-void
-thread_set_old_priority (int old_priority)
-{
-  thread_current ()->old_priority = old_priority;
-}
-
-/* Returns the current thread's priority. */
-int
-thread_get_old_priority (void)
-{
-  return thread_current ()->old_priority;
 }
 
 /* Sets the current thread's nice value to NICE. */
 void
-thread_set_nice (int nice UNUSED)
+thread_set_nice (int new_nice)
 {
-  /* Not yet implemented. */
+  thread_current()->nice = new_nice;
 }
 
 /* Returns the current thread's nice value. */
 int
 thread_get_nice (void)
 {
-  /* Not yet implemented. */
-  return 0;
+  return thread_current()->nice;
+}
+
+// Sets the next system load average
+void
+thread_set_load_avg (void)
+{
+  load_avg = load_avg*59/60 + list_size(&ready_list)*FIXED_POINT_FACTOR/60;
 }
 
 /* Returns 100 times the system load average. */
 int
 thread_get_load_avg (void)
 {
-  /* Not yet implemented. */
-  return 0;
+  int ret = load_avg * 100;
+  if (ret>0)
+    return (ret + FIXED_POINT_FACTOR/2) / FIXED_POINT_FACTOR;
+  return (ret - FIXED_POINT_FACTOR/2) / FIXED_POINT_FACTOR;
+
+}
+
+// Sets the next recent cpu for thread target
+void
+thread_set_recent_cpu (struct thread *target, void *aux)
+{
+  int64_t coeff = (int64_t) 2*load_avg * FIXED_POINT_FACTOR / (2*load_avg + 1);
+  int64_t new_cpu = coeff * target->recent_cpu + nice;
+  target->recent_cpu = (int32_t) new_cpu;
 }
 
 /* Returns 100 times the current thread's recent_cpu value. */
 int
-thread_get_recent_cpu (void)
+thread_get_recent_cpu (struct thread *target)
 {
-  /* Not yet implemented. */
-  return 0;
+  int ret =  target->recent_cpu * 100;
+  if (ret>0)
+    return (ret + FIXED_POINT_FACTOR/2) / FIXED_POINT_FACTOR;
+  return (ret - FIXED_POINT_FACTOR/2) / FIXED_POINT_FACTOR;
 }
 
 /* Idle thread.  Executes when no other thread is ready to run.
@@ -543,9 +540,11 @@ init_thread (struct thread *t, const char *name, int priority)
   strlcpy (t->name, name, sizeof t->name);
   t->stack = (uint8_t *) t + PGSIZE;
   t->priority = priority;
-  t->old_priority = priority; // added
   t->magic = THREAD_MAGIC;
   list_init (&(t->locks));
+
+  t->nice = 0;        // added in mlfqs
+  t->recent_cpu = 0;  // added in mlfqs
 
   old_level = intr_disable ();
   list_push_back (&all_list, &t->allelem);
@@ -585,10 +584,10 @@ next_thread_to_run (void)
 
 //Compares two list elements that contain threads and returns whether a has
 //lower priority than b
-bool 
+bool
 thread_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux)
 {
-  return (other_thread_get_priority(list_entry(a,struct thread, elem)) 
+  return (other_thread_get_priority(list_entry(a,struct thread, elem))
     < other_thread_get_priority(list_entry(b,struct thread, elem)));
 }
 
