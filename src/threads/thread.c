@@ -437,6 +437,12 @@ other_thread_set_recent_cpu (struct thread *target, void *aux)
   target->recent_cpu = (int32_t) new_cpu;
 }
 
+void
+thread_increase_recent_cpu(void)
+{
+  thread_current()->recent_cpu + (1 * FIXED_POINT_FACTOR);
+}
+
 /* Returns 100 times the current thread's recent_cpu value. */
 int
 thread_get_recent_cpu (void)
