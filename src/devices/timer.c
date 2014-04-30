@@ -179,7 +179,7 @@ timer_interrupt (struct intr_frame *args UNUSED)
   if (thread_mlfqs){
     if (timer_ticks() % TIMER_FREQ == 0){
       thread_set_load_avg();
-      thread_foreach(thread_set_recent_cpu, NULL);
+      thread_foreach(other_thread_set_recent_cpu, NULL);
     if (timer_ticks() % 4 == 0)
       thread_foreach(thread_mlfqs_update, NULL);
     }
