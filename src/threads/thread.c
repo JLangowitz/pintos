@@ -401,33 +401,6 @@ lock_priority_less (const struct list_elem *a, const struct list_elem *b, void *
     list_max(&lock_b->semaphore.waiters, thread_priority_less, NULL), aux);
 }
 
-// Donates priority of current thread to target thread
-void
-thread_donate_priority (struct thread *target) 
-{
-  return;
-}
-
-// Restores priority of current thread
-void
-thread_restore_priority () {
-  return;
-}
-
-/* Sets the current thread's priority to NEW_PRIORITY. */
-void
-thread_set_old_priority (int old_priority)
-{
-  thread_current ()->old_priority = old_priority;
-}
-
-/* Returns the current thread's priority. */
-int
-thread_get_old_priority (void)
-{
-  return thread_current ()->old_priority;
-}
-
 /* Sets the current thread's nice value to NICE. */
 void
 thread_set_nice (int nice UNUSED)
@@ -545,7 +518,6 @@ init_thread (struct thread *t, const char *name, int priority)
   strlcpy (t->name, name, sizeof t->name);
   t->stack = (uint8_t *) t + PGSIZE;
   t->priority = priority;
-  t->old_priority = priority; // added
   t->magic = THREAD_MAGIC;
   list_init (&(t->locks));
 
