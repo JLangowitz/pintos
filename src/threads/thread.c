@@ -351,6 +351,7 @@ void
 thread_set_priority (int new_priority)
 {
   other_thread_set_priority (thread_current(), new_priority);
+  thread_yield();
 }
 
 // Sets the target thread's priority to new_priority
@@ -358,7 +359,6 @@ void
 other_thread_set_priority (struct thread *target, int new_priority)
 {
   target->priority = new_priority;
-  thread_yield();
 }
 
 /* Returns the current thread's priority. */
@@ -674,7 +674,7 @@ allocate_tid (void)
 }
 
 void thread_mlfqs_update(struct thread *t, void *aux){
-  thread_set_priority(PRI_MAX - (other_thread_get_recent_cpu(t)/4) - (t->nice*2));
+  other_thread_set_priority(t, PRI_MAX - (other_thread_get_recent_cpu(t)/4) - (t->nice*2));
 }
 
 /* Offset of `stack' member within `struct thread'.
