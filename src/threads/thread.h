@@ -145,7 +145,11 @@ void thread_set_priority (int);
 int thread_get_nice (void);
 void thread_set_nice (int);
 int thread_get_recent_cpu (void);
+int other_thread_get_recent_cpu (struct thread *);
+void thread_set_recent_cpu (struct thread *, void *);
 int thread_get_load_avg (void);
+void thread_set_load_avg (void);
+void thread_mlfqs_update (struct thread *, void *);
 
 bool thread_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux);
 
