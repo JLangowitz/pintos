@@ -354,6 +354,7 @@ thread_set_priority (int new_priority)
 void
 other_thread_set_priority (struct thread *target, int new_priority)
 {
+  if (thread_mlfqs) return;
   target->priority = new_priority;
   thread_yield();
 }
@@ -369,6 +370,7 @@ thread_get_priority (void)
 int
 other_thread_get_priority (struct thread *target)
 {
+  if (thread_mlfqs) return target->priority;
   int max = target->priority;
   int temp;
   struct list_elem *lock_elem;
