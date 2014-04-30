@@ -674,6 +674,10 @@ allocate_tid (void)
 
   return tid;
 }
+
+void thread_mlfqs_update(struct thread *t, void *aux){
+  thread_set_priority(PRI_MAX - (thread_get_recent_cpu()/4) - (t->nice*2));
+}
 
 /* Offset of `stack' member within `struct thread'.
    Used by switch.S, which can't figure it out on its own. */

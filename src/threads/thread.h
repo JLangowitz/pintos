@@ -149,4 +149,6 @@ int thread_get_load_avg (void);
 
 bool thread_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux);
 
+void thread_mlfqs_update(struct thread *t, void *aux);
+
 #endif /* threads/thread.h */
