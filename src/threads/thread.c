@@ -413,7 +413,8 @@ thread_get_nice (void)
 void
 thread_set_load_avg (void)
 {
-  load_avg = load_avg*59/60 + list_size(&ready_list)*FIXED_POINT_FACTOR/60;
+  printf("%i", list_size(&ready_list));
+  load_avg = load_avg*59/60 + (list_size(&ready_list) + 1) * FIXED_POINT_FACTOR / 60;
 }
 
 /* Returns 100 times the system load average. */
@@ -429,7 +430,7 @@ thread_get_load_avg (void)
 
 // Sets the next recent cpu for thread target
 void
-thread_set_recent_cpu (struct thread *target, void *aux)
+other_thread_set_recent_cpu (struct thread *target, void *aux)
 {
   int64_t coeff = (int64_t) 2*load_avg * FIXED_POINT_FACTOR / (2*load_avg + 1);
   int64_t new_cpu = coeff * target->recent_cpu + target->nice * FIXED_POINT_FACTOR;
