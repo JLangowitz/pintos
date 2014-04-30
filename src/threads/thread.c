@@ -428,16 +428,29 @@ thread_set_load_avg (void)
 int
 thread_get_load_avg (void)
 {
-  int ret = load_avg * 100 / FIXED_POINT_FACTOR;
-  return ret;
+  int ret = load_avg * 100;
+  if (ret>0)
+    return (ret + FIXED_POINT_FACTOR/2) / FIXED_POINT_FACTOR;
+  return (ret - FIXED_POINT_FACTOR/2) / FIXED_POINT_FACTOR;
+
 }
 
+// Sets the next recent cpu for thread target
+void
+thread_set_recent_cpu (struct thread *target, void *aux)
+{
+  int64_t coeff = (int64_t) 2*load_avg * FIXED_POINT_FACTOR / (2*load_avg + 1);
+  int64_t new_cpu = coeff * target->recent_cpu + nice;
+  target->recent_cpu = (int32_t) new_cpu;
+}
 /* Returns 100 times the current thread's recent_cpu value. */
 int
-thread_get_recent_cpu (void)
+thread_get_recent_cpu (struct thread *target)
 {
-  /* Not yet implemented. */
-  return 0;
+  int ret =  target->recent_cpu * 100;
+  if (ret>0)
+    return (ret + FIXED_POINT_FACTOR/2) / FIXED_POINT_FACTOR;
+  return (ret - FIXED_POINT_FACTOR/2) / FIXED_POINT_FACTOR;
 }
 
 /* Idle thread.  Executes when no other thread is ready to run.
