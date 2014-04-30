@@ -443,6 +443,7 @@ thread_set_recent_cpu (struct thread *target, void *aux)
   int64_t new_cpu = coeff * target->recent_cpu + nice;
   target->recent_cpu = (int32_t) new_cpu;
 }
+
 /* Returns 100 times the current thread's recent_cpu value. */
 int
 thread_get_recent_cpu (struct thread *target)
@@ -541,7 +542,9 @@ init_thread (struct thread *t, const char *name, int priority)
   t->priority = priority;
   t->magic = THREAD_MAGIC;
   list_init (&(t->locks));
-  t->nice = 0;  // added in mlfqs
+
+  t->nice = 0;        // added in mlfqs
+  t->recent_cpu = 0;  // added in mlfqs
 
   old_level = intr_disable ();
   list_push_back (&all_list, &t->allelem);
