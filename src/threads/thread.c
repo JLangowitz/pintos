@@ -71,6 +71,9 @@ static void schedule (void);
 void thread_schedule_tail (struct thread *prev);
 static tid_t allocate_tid (void);
 
+static int32_t load_avg = 0; // We added this
+#define FIXED_POINT_FACTOR 16384
+
 /* Initializes the threading system by transforming the code
    that's currently running into a thread.  This can't work in
    general and it is possible in this case only because loader.S
@@ -414,12 +417,19 @@ thread_get_nice (void)
   return thread_current()->nice;
 }
 
+// Sets the next system load average
+void
+thread_set_load_avg (void)
+{
+  load_avg = load_avg*59/60 + list_size(&ready_list)*FIXED_POINT_FACTOR/60;
+}
+
 /* Returns 100 times the system load average. */
 int
 thread_get_load_avg (void)
 {
-  /* Not yet implemented. */
-  return 0;
+  int ret = load_avg * 100 / FIXED_POINT_FACTOR;
+  return ret;
 }
 
 /* Returns 100 times the current thread's recent_cpu value. */
