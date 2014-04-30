@@ -175,6 +175,7 @@ timer_interrupt (struct intr_frame *args UNUSED)
 {
   ticks++;
   thread_tick ();
+  thread_increment_cpu ();
   thread_foreach(thread_wake, NULL);
   if (thread_mlfqs){
     if (timer_ticks() % TIMER_FREQ == 0){

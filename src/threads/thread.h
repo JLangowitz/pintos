@@ -144,6 +144,7 @@ void thread_set_priority (int);
 
 int thread_get_nice (void);
 void thread_set_nice (int);
+void thread_increment_cpu (void);
 int thread_get_recent_cpu (void);
 int other_thread_get_recent_cpu (struct thread *);
 void other_thread_set_recent_cpu (struct thread *, void *);
