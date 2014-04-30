@@ -674,7 +674,7 @@ allocate_tid (void)
 }
 
 void thread_mlfqs_update(struct thread *t, void *aux){
-  thread_set_priority(PRI_MAX - (other_thread_get_recent_cpu(t)/4) - (t->nice*2));
+  other_thread_set_priority(PRI_MAX - (other_thread_get_recent_cpu(t)/4) - (t->nice*2));
 }
 
 /* Offset of `stack' member within `struct thread'.
