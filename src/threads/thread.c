@@ -422,11 +422,19 @@ thread_get_load_avg (void)
   return 0;
 }
 
+// added in mlfqs
+int
+thread_set_recent_cpu (int new_recent_cpu)
+{
+  thread_current()->recent_cpu = new_recent_cpu;
+  return 0;
+}
+
 /* Returns 100 times the current thread's recent_cpu value. */
 int
 thread_get_recent_cpu (void)
 {
-  /* Not yet implemented. */
+  thread_current()->recent_cpu;
   return 0;
 }
 
@@ -518,7 +526,9 @@ init_thread (struct thread *t, const char *name, int priority)
   t->priority = priority;
   t->magic = THREAD_MAGIC;
   list_init (&(t->locks));
-  t->nice = 0;  // added in mlfqs
+
+  t->nice = 0;        // added in mlfqs
+  t->recent_cpu = 0;  // added in mlfqs
 
   old_level = intr_disable ();
   list_push_back (&all_list, &t->allelem);

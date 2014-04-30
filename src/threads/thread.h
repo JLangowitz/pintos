@@ -104,7 +104,8 @@ struct thread
     // Stuff we are adding
     struct list locks; /*List of owned locks for priority donation*/
 
-    int nice;
+    int nice;       // added in mlfqs
+    int recent_cpu; // added in mlfqs
   };
 
 /* If false (default), use round-robin scheduler.
