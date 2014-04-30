@@ -395,14 +395,6 @@ other_thread_get_priority (struct thread *target)
   return max;
 }
 
-bool
-lock_priority_less (const struct list_elem *a, const struct list_elem *b, void *aux){
-  struct lock *lock_a = list_entry(a, struct lock, elem);
-  struct lock *lock_b = list_entry(b, struct lock, elem);
-  return thread_priority_less(list_max(&lock_a->semaphore.waiters, thread_priority_less, NULL),
-    list_max(&lock_b->semaphore.waiters, thread_priority_less, NULL), aux);
-}
-
 /* Sets the current thread's nice value to NICE. */
 void
 thread_set_nice (int new_nice)
@@ -440,13 +432,20 @@ void
 thread_set_recent_cpu (struct thread *target, void *aux)
 {
   int64_t coeff = (int64_t) 2*load_avg * FIXED_POINT_FACTOR / (2*load_avg + 1);
-  int64_t new_cpu = coeff * target->recent_cpu + nice;
+  int64_t new_cpu = coeff * target->recent_cpu + target->nice * FIXED_POINT_FACTOR;
   target->recent_cpu = (int32_t) new_cpu;
 }
 
 /* Returns 100 times the current thread's recent_cpu value. */
 int
-thread_get_recent_cpu (struct thread *target)
+thread_get_recent_cpu (void)
+{
+  return other_thread_get_recent_cpu(thread_current());
+}
+
+/* Returns 100 times the target thread's recent_cpu value. */
+int
+other_thread_get_recent_cpu (struct thread *target)
 {
   int ret =  target->recent_cpu * 100;
   if (ret>0)
