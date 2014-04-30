@@ -103,6 +103,8 @@ struct thread
 
     // Stuff we are adding
     struct list locks; /*List of owned locks for priority donation*/
+
+    int nice;
   };
 
 /* If false (default), use round-robin scheduler.

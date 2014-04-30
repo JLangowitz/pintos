@@ -397,23 +397,22 @@ bool
 lock_priority_less (const struct list_elem *a, const struct list_elem *b, void *aux){
   struct lock *lock_a = list_entry(a, struct lock, elem);
   struct lock *lock_b = list_entry(b, struct lock, elem);
-  return thread_priority_less(list_max(&lock_a->semaphore.waiters, thread_priority_less, NULL), 
+  return thread_priority_less(list_max(&lock_a->semaphore.waiters, thread_priority_less, NULL),
     list_max(&lock_b->semaphore.waiters, thread_priority_less, NULL), aux);
 }
 
 /* Sets the current thread's nice value to NICE. */
 void
-thread_set_nice (int nice UNUSED)
+thread_set_nice (int new_nice)
 {
-  /* Not yet implemented. */
+  thread_current()->nice = new_nice;
 }
 
 /* Returns the current thread's nice value. */
 int
 thread_get_nice (void)
 {
-  /* Not yet implemented. */
-  return 0;
+  return thread_current()->nice;
 }
 
 /* Returns 100 times the system load average. */
@@ -520,6 +519,7 @@ init_thread (struct thread *t, const char *name, int priority)
   t->priority = priority;
   t->magic = THREAD_MAGIC;
   list_init (&(t->locks));
+  t->nice = 0;  // added in mlfqs
 
   old_level = intr_disable ();
   list_push_back (&all_list, &t->allelem);
@@ -559,10 +559,10 @@ next_thread_to_run (void)
 
 //Compares two list elements that contain threads and returns whether a has
 //lower priority than b
-bool 
+bool
 thread_priority_less(const struct list_elem *a, const struct list_elem *b, void *aux)
 {
-  return (other_thread_get_priority(list_entry(a,struct thread, elem)) 
+  return (other_thread_get_priority(list_entry(a,struct thread, elem))
     < other_thread_get_priority(list_entry(b,struct thread, elem)));
 }
 
