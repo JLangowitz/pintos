@@ -175,15 +175,14 @@ timer_interrupt (struct intr_frame *args UNUSED)
 {
   ticks++;
   thread_tick ();
-
-  thread_increase_recent_cpu();
-
+  thread_increment_cpu ();
   thread_foreach(thread_wake, NULL);
   if (thread_mlfqs){
     if (timer_ticks() % TIMER_FREQ == 0){
       thread_set_load_avg();
       thread_foreach(other_thread_set_recent_cpu, NULL);
-    if (timer_ticks() % 4 == 0)
+    }
+    if (timer_ticks() % 4 == 0) {
       thread_foreach(thread_mlfqs_update, NULL);
     }
   }
