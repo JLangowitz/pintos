@@ -401,7 +401,7 @@ thread_set_nice (int new_nice)
 {
   thread_current()->nice = new_nice;
 
-  thread_set_priority(PRI_MAX - (thread_get_recent_cpu()/4) - (thread_current()->nice*2));
+  thread_set_priority(PRI_MAX - (thread_get_recent_cpu()/4) - (thread_current()->nice*200));
   thread_yield();
 }
 
@@ -686,7 +686,7 @@ allocate_tid (void)
 }
 
 void thread_mlfqs_update(struct thread *t, void *aux){
-  other_thread_set_priority(t, PRI_MAX - (other_thread_get_recent_cpu(t)/4) - (t->nice*2));
+  other_thread_set_priority(t, PRI_MAX - (other_thread_get_recent_cpu(t)/4) - (t->nice*200));
 }
 
 /* Offset of `stack' member within `struct thread'.
